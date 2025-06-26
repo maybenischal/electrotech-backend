@@ -1,34 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
-import User from '../models/User';
+import User, { IUser } from '../models/User';
 import Role from '../models/Role';
+import { sendSuccess } from '../ControllerWrapper';
 
 const CUSTOMER_ROLE = "customer";
 
-export const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    console.log('Creating user');
-    const { username, email, password } = req.body;
-    let role = req.body.role;
+export const createUser = async (req: Request, res: Response): Promise<void> => {
+  const { username, email, password } = req.body;
+  let role = req.body.role;
 
-    // You might want to add validation here!
-
-    // if no role is provided then this is login from external user so default role is assigned
-    if (role == null || role.length == 0) {
-      const externalUserRole = await Role.findOne({ name: CUSTOMER_ROLE }).exec();
-      if (!externalUserRole) {
-        throw new Error(`Role with name "${CUSTOMER_ROLE}" not found`);
-      }
-      role = externalUserRole
+  if (!role) {
+    const defaultRole = await Role.findOne({ name: CUSTOMER_ROLE }).exec();
+    if (!defaultRole) {
+      throw new Error(`Role "${CUSTOMER_ROLE}" not found`);
     }
-
-    const user = await User.create({ username, email, password, role });
-    res.status(201).json({
-      message: "User created successfully"
-    });
-  } catch (err: any) {
-    // res.status(400).json({ error: err.message || 'Failed to create user' });
-    next(err)
+    role = defaultRole._id;
   }
+
+  const user = await User.create({ username, email, password, role });
+  sendSuccess(res, 'User created successfully', user, 201);
 };
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -78,3 +68,4 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
     res.status(500).json({ error: err.message || 'Failed to delete user' });
   }
 };
+

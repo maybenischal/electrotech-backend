@@ -3,7 +3,7 @@ import { MongoServerError } from 'mongodb';
 import { AppError } from '../../utils/AppError';
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.error('❌ Error:', err);
+  console.error('❌ Error intercepted in ErrorHandler :', err);
 
   let statusCode = 500;
   let message = 'Something went wrong';
