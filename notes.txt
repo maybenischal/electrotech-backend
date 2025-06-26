@@ -1,0 +1,16 @@
+# run server
+npx nodemon server.js
+
+
+# for type-safety install
+npm install -D typescript ts-node @types/express @types/node @types/cors
+
+# for seeding
+npx ts-node src/seeder/DefaultConfigurations.ts
+
+
+## how Middleware works??
+Request → Middleware 1 → Controller → next(err)
+                                       ↓
+                           🧲 Error Middleware (err, req, res, next)
+
